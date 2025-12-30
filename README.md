@@ -146,7 +146,7 @@ stateDiagram-v2
 > - Remember how `RunnableParallel` clicked when you needed to pass the original question.  
 >  
 > You’re not done. You’re just getting started.  
-> — Current You
+> — Ayush
 
 ---
 
