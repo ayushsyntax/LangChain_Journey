@@ -240,4 +240,3 @@ Every breakthrough emerges from connecting concepts in new ways. Every innovatio
 
 ---
 
-*This journey continues... one notebook at a time*
