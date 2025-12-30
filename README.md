@@ -1,159 +1,159 @@
-
-
----
-
 # 🧠 LangChain Journey  
 *by ayushsyntax*
 
-> *A living log of building, breaking, and understanding LangChain — from first `invoke()` to autonomous agents.*
+> *A personal learning lab where I explore LangChain concepts, RAG pipelines, and agent workflows through hands-on experiments.*
 
 ---
 
-## 🌱 Why This Exists
+## 🔍 What This Is
 
-This repo is my **engineering journal** — not a tutorial, not a template.  
-It’s where I:
+This is my **working notebook repository** — not a polished library or tutorial.  
+I built it to:
 
-- ✍️ **Write to learn**: Every notebook starts with a question, not a conclusion.  
-- 🔧 **Break things on purpose**: To see how they’re held together.  
-- 📦 **Build from scratch**: Even when higher abstractions exist — because primitives teach truth.  
-- 🧭 **Map the mental model**: Not just *how*, but *why* the pieces click.
+- ✅ Learn by doing: Each `.ipynb` starts with a question I wanted to answer.
+- ✅ Document my path: From “How do I call a model?” to “How do I build an agent?”
+- ✅ Keep what worked — and what broke: Failures are annotated, not deleted.
+- ✅ Create a reference I can revisit when I forget how `RunnableParallel` works.
 
-> *“If you can’t rebuild it, you don’t own it.”*
+No corporate speak. No “revolutionary” claims. Just code, notes, and progress.
 
 ---
 
-## 🗺️ My LangChain Path — Visualized
+## 🗂️ How It’s Organized
 
+```
+LangChain_Journey/
+│
+├── 🏗️ core/             # Foundations
+│   ├── Introduction_to_LangChain.ipynb     # First steps
+│   ├── Models_1.ipynb                       # Calling LLMs & ChatModels
+│   └── Prompts_2.ipynb                      # Templates, roles, dynamic prompts
+│
+├── ⛓️ orchestration/    # Chaining & Flow
+│   ├── Chains_in_LangChain_5.ipynb          # LCEL basics
+│   ├── What_are_Runnables_6.ipynb           # Standard invoke() interface
+│   └── Output_Parsers_4.ipynb               # Pydantic, StringOutputParser
+│
+├── 📑 data/              # Loading & Structuring
+│   ├── Document_Loaders_RAG1.ipynb          # PDF, Web, CSV → Documents
+│   ├── Text_Splitters_RAG2.ipynb            # Chunking for context limits
+│   └── Vector_Stores_RAG3.ipynb             # Embeddings + Chroma/FAISS
+│
+├── 🔍 rag/               # Retrieval-Augmented Generation
+│   ├── Retrievers_RAG4.ipynb                # Semantic search, MMR, compression
+│   └── RAG_Pipeline_Complete.ipynb          # End-to-end implementation
+│
+└── 🤖 agents/            # Tool Calling & Autonomous Workflows
+    ├── Tools_Calling_in_LangChain.ipynb     # @tool, binding, safe execution
+    └── Building_end_to_end_AI_Agent.ipynb   # ReAct loop with AgentExecutor
+```
+
+---
+
+## 🧩 Key Concepts I’ve Implemented
+
+### 1. **Models & Prompts**
+- Learned difference between `LLM` (string-in/string-out) and `ChatModel` (message-based)
+- Used `ChatPromptTemplate` with `SystemMessage`, `HumanMessage`, `AIMessage`
+- Controlled output randomness with `temperature=0` (deterministic) vs `temperature=1.5` (creative)
+
+→ [`Models_1.ipynb`](Models_1.ipynb) · [`Prompts_2.ipynb`](Prompts_2.ipynb)
+
+### 2. **Runnables & LCEL**
+- Understood `Runnable` interface — everything has `.invoke()`
+- Built chains with `|` operator: `prompt | model | parser`
+- Used `RunnableParallel` to fetch context + pass original question simultaneously
+
+→ [`What_are_Runnables_6.ipynb`](What_are_Runnables_6.ipynb) · [`Chains_in_LangChain_5.ipynb`](Chains_in_LangChain_5.ipynb)
+
+### 3. **Structured Output**
+- Used `PydanticOutputParser` to enforce schema (e.g., `age: int > 0`)
+- Injected format instructions into prompts via `partial_variables`
+- Prevented hallucinations by validating output before use
+
+→ [`Output_Parsers_4.ipynb`](Output_Parsers_4.ipynb)
+
+### 4. **RAG Pipeline**
 ```mermaid
 flowchart LR
-    A[Models & Prompts] --> B[Runnable Interface]
-    B --> C[LCEL Chains]
-    C --> D[Structured Output]
-    D --> E[RAG Systems]
-    E --> F[Agents with Tools]
+    Q[Query] --> E[Embed]
+    Docs[Documents] --> S[Splitter]
+    S --> E2[Embed Chunks]
+    E --> VS[Vector Store]
+    E2 --> VS
+    VS --> R[Retrieve Top-k]
+    R --> Aug[“Answer ONLY using context:” + context + query]
+    Aug --> LLM
+    LLM --> Ans[Final Answer]
     
-    classDef phase fill:#64B5F6,stroke:#1976D2,color:white
-    classDef current fill:#4CAF50,stroke:#2E7D32,color:white
-    classDef future fill:#FFB74D,stroke:#F57C00,color:black
+    classDef process fill:#673AB7,stroke:#4527A0,color:white
+    classDef data fill:#FF9800,stroke:#EF6C00,color:black
     
-    class A,B,C,D,E phase
-    class F current
+    class E,S,E2,R,Aug,LLM process
+    class Docs,Q,Ans data
 ```
+- Used `RecursiveCharacterTextSplitter` to preserve sentence boundaries
+- Added `ContextualCompressionRetriever` to trim irrelevant text before LLM input
 
-Each phase wasn’t linear — it was **looped, revisited, debugged at 2 AM**.  
-And that’s exactly what the notebooks show.
+→ [`RAG_Pipeline_Complete.ipynb`](RAG_Pipeline_Complete.ipynb)
 
----
-
-## 🧪 What’s Inside — As I Learned It
-
-### 1. **Foundations: Speaking the Model’s Language**
-- `ChatModel` vs `LLM` — why roles (`System`, `Human`, `AI`) changed everything  
-- `temperature=0` for reproducibility, `temperature=1.3` for brainstorming  
-- Prompt templating that *doesn’t break* when history grows  
-→ [`models.ipynb`](core/models.ipynb) · [`prompts.ipynb`](core/prompts.ipynb)
-
-### 2. **The Runnable Revelation**
-> *“Wait — everything has `.invoke()`? Even my lambda?”*
-
-- Unified interface over models, prompts, parsers, tools  
-- `RunnableLambda(lambda x: x["query"].upper())` — my first “aha!” moment  
-→ [`runnables.ipynb`](core/runnables.ipynb)
-
-### 3. **LCEL: Where Code Became Flow**
-```mermaid
-flowchart LR
-    style Chain fill:#2196F3,stroke:#0D47A1,color:white
-    style Input fill:#90A4AE,stroke:#546E7A
-    style Output fill:#4CAF50,stroke:#388E3C,color:white
-
-    subgraph Chain
-        P[ChatPrompt] --> M[Model] --> O[Parser]
-    end
-
-    Input --> P
-    O --> Output
-```
-```python
-chain = prompt | model | StringOutputParser()
-# No wrapper classes. Just flow.
-```
-→ [`lcel.ipynb`](orchestration/lcel.ipynb)
-
-### 4. **Structured Output: Taming the LLM**
-- `PydanticOutputParser` with `Field(gt=0, le=100)` → stopped `"age": "infinity"`  
-- Schema injection into prompts via `partial_variables`  
-→ [`parsers.ipynb`](io/parsers.ipynb)
-
-### 5. **RAG: Grounding in Reality**
-```
-[Query] 
-   ↓
-[Embed → Retrieve] → [“Use ONLY this: …” + Context + Query] 
-   ↓
-[Model] → [Answer with Sources]
-```
-- `RecursiveCharacterTextSplitter` — because `chunk_size=1000` lies  
-- `ContextualCompressionRetriever` — trimming fluff *before* it hits the LLM  
-→ [`pipeline.ipynb`](rag/pipeline.ipynb)
-
-### 6. **Agents: My First Autonomous Loop**
+### 5. **Agents & Tools**
 ```mermaid
 stateDiagram-v2
     [*] --> Think
-    Think --> Act: “Need weather → call get_weather”
-    Act --> Observe: Tool returns "32°C, Delhi"
+    Think --> Act: “Call get_weather(‘Delhi’)”
+    Act --> Observe: Returns “32°C, Partly Cloudy”
     Observe --> Decide
-    Decide --> Think: “Still need humidity?”
+    Decide --> Think: “Need humidity?”
     Decide --> Answer: “It’s hot. Wear light clothes.”
     Answer --> [*]
     
     note right of Observe
-      Critical: The LLM proposes the tool call.
-      The framework executes it.
-      Safety isn’t optional.
+      The LLM suggests the tool.
+      The framework runs it.
+      Safety first.
     end note
 ```
-- `@tool` decorator → turned a function into an “agent limb”  
-- `AgentExecutor` — my first working ReAct loop (with retries)  
-→ [`agent_executor.ipynb`](agents/agent_executor.ipynb)
+- Defined tools with `@tool` decorator
+- Bound tools to model with `model.bind_tools([get_weather])`
+- Used `AgentExecutor` for simple ReAct loops (no LangGraph yet)
+
+→ [`Tools_Calling_in_LangChain.ipynb`](Tools_Calling_in_LangChain.ipynb) · [`Building_end_to_end_AI_Agent.ipynb`](Building_end_to_end_AI_Agent.ipynb)
 
 ---
 
-## 🧰 My Toolkit
+## 🛠️ My Setup
 
-| Layer | Tools Used |
-|-------|------------|
-| **Models** | OpenAI (`gpt-4o`), Anthropic (`claude-3.5`), Ollama (`llama3.1`) |
-| **Vector DB** | Chroma (dev), FAISS (lightweight tests) |
-| **Orchestration** | LangChain v1.0 core — `Runnable`, `LCEL`, `AgentExecutor` |
-| **Env** | JupyterLab 4.x · Python 3.14.2 |
+| Component | Choice |
+|----------|--------|
+| **LangChain** | v1.0 (core only — no LangGraph yet) |
+| **Python** | 3.14.2 |
+| **Environment** | JupyterLab 4.x |
+| **Models** | OpenAI (`gpt-4o`), Ollama (`llama3.1`) |
+| **Vector DB** | Chroma (local), FAISS (for testing) |
 
-> ✅ All notebooks are **runnable as-is**  
-> ✅ Comments explain *intent*, not just syntax  
-> ✅ Failures are kept — with notes on *why*
+> ✅ All notebooks run locally  
+> ✅ Code comments explain *why*, not just *how*  
+> ✅ Failed attempts are kept — with notes on what went wrong
 
 ---
 
 ## 📜 A Note to My Future Self
 
-> *Hey future me,*  
-> When you open `agent_executor.ipynb` and see the 7 failed loops before the 8th worked —  
-> **don’t skip them.**  
-> That’s where the real learning is.  
-> The working version is the trophy.  
-> The broken ones? That’s the training data.  
+> *When you come back here:*  
+> - Don’t skip the messy cells. That’s where you figured things out.  
+> - Re-read the `agent_executor.ipynb` failures — they taught you about tool safety.  
+> - Remember how `RunnableParallel` clicked when you needed to pass the original question.  
 >  
-> Keep building. Keep breaking.  
-> — You, 2025
+> You’re not done. You’re just getting started.  
+> — Current You
 
 ---
 
 <div align="center">
 
 [![Open in GitHub](https://img.shields.io/badge/GitHub-Explore_Repo-181717?logo=github&logoColor=white)](https://github.com/ayushsyntax/LangChain_Journey)  
-**LangChain isn’t magic — it’s legos with documentation.  
-This is my assembly log.**
+**LangChain isn’t magic. It’s patterns.  
+This is where I’m learning them.**
 
 </div>
